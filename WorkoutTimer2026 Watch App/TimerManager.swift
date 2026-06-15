@@ -75,6 +75,26 @@ final class TimerManager: ObservableObject {
 	
 		// MARK: - Private timer loop
 	
+	private func runTimerLoop() async {
+			let startDate = Date()
+			var lastTick = startDate
+		while isRunning && remaining > 0 {
+			do {
+				try await Task.sleep(nanoseconds: 250_000_000) // 0.25s ticks
+			}
+			catch {
+				break // cancelled
+			}
+			
+			let now = Date()
+			
+			let elapsed = now.timeIntervalSince(lastTick)
+			if elapsed >= 1.0 {
+				
+			}
+		}
+	}
+	
 		private func updateProgress(){
 			if duration <= 0 {
 					progress = 0
@@ -84,9 +104,7 @@ final class TimerManager: ObservableObject {
 			}
 		}
 	
-		private func runTimerLoop() async {
-			
-		}
+		
 	
 		// MARK: - Notifications
 	
