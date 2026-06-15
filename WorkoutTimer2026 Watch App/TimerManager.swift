@@ -30,6 +30,12 @@ final class TimerManager: ObservableObject {
 	
 		// MARK: - Public API
 		
+	func setDuration(_ seconds: TimeInterval){
+		guard !isRunning else { return } // change only when paused or stopped
+		duration = max(1, seconds)
+		remaining = duration
+		updateProgress()
+	}
 	
 		// MARK: - Private timer loop
 	
