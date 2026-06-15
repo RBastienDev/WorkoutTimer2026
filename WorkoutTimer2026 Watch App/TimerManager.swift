@@ -78,7 +78,7 @@ final class TimerManager: ObservableObject {
 	private func runTimerLoop() async {
 			let startDate = Date()
 			var lastTick = startDate
-		while isRunning && remaining > 0 {
+			while isRunning && remaining > 0 {
 			do {
 				try await Task.sleep(nanoseconds: 250_000_000) // 0.25s ticks
 			}
@@ -90,10 +90,49 @@ final class TimerManager: ObservableObject {
 			
 			let elapsed = now.timeIntervalSince(lastTick)
 			if elapsed >= 1.0 {
+				let wholeSeconds = floor(elapsed)
+				remaining = max(0, wholeSeconds)
+				lastTick = now
+				updateProgress()
+				
+				// Last 10 seconds countdown
+				if remaining > 0 && remaining <= 10 {
+						playCountdownHaptic()
+				}
 				
 			}
+				
+				if Task.isCancelled{
+					break
+				}
+			
+			
 		}
+		
+		// if timer reached 0 while still running, handle completion
+		if remaining <= 0 && isRunning {
+			await timerCompleted()
+		}
+		
+		isRunning = false
+		timerTask = nil
+		
 	}
+	
+	
+		private func timerCompleted() async {
+			remaining = 0
+			updateProgress()
+		
+			// play a haptic
+			WKInterfaceDevice.current().play(.notification)
+			// optionally you could vibrate more or play specific sound
+			// trigger cleanup code or delegate calls here
+			// post a local notification immediately (in case haptics missed)
+			await sendImmediateNotification()
+	}
+	
+	
 	
 		private func updateProgress(){
 			if duration <= 0 {
