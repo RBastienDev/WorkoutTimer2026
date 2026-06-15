@@ -176,6 +176,13 @@ final class TimerManager: ObservableObject {
 			try? await center.add(req)
 		}
 	
-		// MARK: - Helpers
+		// MARK: - Helpers (readable formatted time)
+	
+		func formatterRemaining() -> String {
+			let sec = Int(max(0, round(remaining)))
+			let minutes = sec / 60
+			let seconds = sec % 60
+			return String(format: "%02d:%02d", minutes, seconds)
+		}
 	
 }
