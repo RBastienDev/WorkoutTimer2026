@@ -148,11 +148,32 @@ final class TimerManager: ObservableObject {
 		// MARK: - Notifications
 	
 		private func scheduleCompletionNotification(){
-			
+				// schedule a local notification at Date() + remaining (if notification authorized)
+				let center = UNUserNotificationCenter.current()
+			center.getNotificationSettings { settings in
+				guard settings.authorizationStatus == .authorized else { return }
+				let content = UNMutableNotificationContent()
+				content.title = "Workout Timer"
+				content.body = "Timer Finished."
+				content.sound = .default
+				let trigger = UNTimeIntervalNotificationTrigger(timeInterval: max(1, self.remaining), repeats: false)
+				let req = UNNotificationRequest(identifier: "WorkoutTimerCompletion", content: content, trigger: trigger)
+				center.add(req, withCompletionHandler: nil)
+			}
 		}
 	
 		private func removePendingCompletionNotification(){
-			UNUserNotificationCenter.current().removeAllPendingNotificationRequests(withIdentifiers: ["WorkoutTimerCompletion"])
+			UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["WorkoutTimerCompletion"])
+		}
+	
+		private func sendImmediateNotification() async {
+			let center = UNUserNotificationCenter.current()
+			let content = UNMutableNotificationContent()
+			content.title = "Workout Timer"
+			content.body = "Your timer has completed."
+			content.sound = .default
+			let req = UNNotificationRequest(identifier: "WorkoutTimerImmediate-\(UUID().uuidString)", content: content, trigger: nil)
+			try? await center.add(req)
 		}
 	
 		// MARK: - Helpers
